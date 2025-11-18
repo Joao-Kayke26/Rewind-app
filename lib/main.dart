@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Netflix Clone',
+      title: 'Rewind',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),

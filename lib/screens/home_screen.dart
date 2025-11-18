@@ -251,8 +251,7 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(color: Colors.red)));
           }
 
-          final movies = snapshot.data ?? [];
-
+              final movies = snapshot.data ?? [];
           if (movies.isEmpty) {
             return const Center(
               child: Text('Nenhum filme cadastrado.',
@@ -291,3 +290,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
