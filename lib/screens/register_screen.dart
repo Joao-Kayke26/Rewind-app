@@ -1,46 +1,48 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:myapp/screens/home_screen.dart';
 import 'login_screen.dart';
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import 'home_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final _apiService = ApiService();
+  final _authService = AuthService();
+
   bool _loading = false;
+  String _error = "";
 
   void _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _loading = true;
+      _error = "";
+    });
 
-    setState(() => _loading = true);
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    final token = await _apiService.register(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    final userO = await _authService.register(name, email, password);
 
     setState(() => _loading = false);
 
-    if (token != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cadastro bem-sucedido! Token: $token')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+    if (userO) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro no cadastro. Verifique os dados.')),
-      );
+      setState(() {
+        _error = 'Erro ao registrar!';
+      });
     }
   }
 
@@ -51,7 +53,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
-            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -66,6 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Nome de usuário',
@@ -77,6 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
@@ -88,6 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(
@@ -106,19 +110,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepOrange,
                           minimumSize: const Size(double.infinity, 48),
+                          textStyle: TextStyle(color: Colors.black),
                         ),
-                        child: const Text('Registrar'),
+                        child: const Text('Registrar', style: TextStyle(color: Colors.black),),
                       ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
                     );
                   },
-                  child: const Text("Já tem conta? Fazer login"),
+                  child: const Text("Já tem conta? Fazer login",style: TextStyle(color: Colors.white),),
                 ),
+                _error != "" ? Text(
+                  _error,
+                  style: TextStyle(color: Colors.white)) : Text(""),
               ],
             ),
           ),

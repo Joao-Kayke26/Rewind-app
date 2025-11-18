@@ -1,48 +1,47 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
 import 'register_screen.dart';
-import 'forgot_password_screen.dart';
-import 'home_catalog_screen.dart';
+import 'home_screen.dart';
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   bool _loading = false;
-  final _apiService = ApiService();
+  String _error = "";
 
-  void _login() async {
-    if (!_formKey.currentState!.validate()) return;
+  void _submit() async {
+    setState(() {
+      _loading = true;
+      _error = "";
+    });
 
-    setState(() => _loading = true);
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    final token = await _apiService.login(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    final ok = await _authService.login(email, password);
 
-    setState(() => _loading = false);
+    setState(() {
+      _loading = false;
+    });
 
-    if (token != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login bem-sucedido! Token: $token')),
+    if (ok) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Falha no login. Verifique as credenciais.'),
-        ),
-      );
+      setState(() {
+        _error = 'Falha no login. Verifique email/senha.';
+      });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
-            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -66,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _emailController,
+                  style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -78,6 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Senha',
                     border: OutlineInputBorder(),
@@ -87,63 +87,34 @@ class _LoginScreenState extends State<LoginScreen> {
                       : 'Senha curta demais',
                 ),
                 const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment
-                      .centerRight, // 👈 empurra o botão para o canto direito
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ForgotPasswordScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Esqueceu sua senha?",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 2),
                 const SizedBox(height: 2),
                 _loading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _loading ? null : _submit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepOrange,
                           minimumSize: const Size(double.infinity, 45),
-                        ),
-                        child: const Text('Entrar'),
-                      ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                    );
-                  },
-                  child: const Text("Novo por aqui? Crie sua conta"),
-                ),
-                const SizedBox(height: 12),
 
-                // Botão para entrar como convidado (pula autenticação)
+                        ),
+                        child: _loading ? const CircularProgressIndicator() : const Text('Entrar',style: TextStyle(color: Colors.black)),
+                      ),
                 TextButton(
                   onPressed: () {
-                    // navega direto para HomeCatalogScreen
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const HomeCatalogScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const RegisterPage()),
                     );
                   },
                   child: const Text(
-                    'Entrar como convidado',
-                    style: TextStyle(color: Colors.deepOrange),
+                    "Novo por aqui? Crie sua conta",
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
+                _error != "" ? Text(
+                    _error,
+                    style: TextStyle(color: Colors.white)) : Text(""),
               ],
             ),
           ),
