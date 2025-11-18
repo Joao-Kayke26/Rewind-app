@@ -30,74 +30,105 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _handleDelete(String movieId) async {
+    final success = await _api.deleteMovie(movieId);
+    if (success) {
+      _refreshMovies();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Filme deletado com sucesso!"), backgroundColor: Colors.red),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Erro ao deletar filme."), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   Widget _buildListItem(Movie movie) {
     final double rating = double.tryParse(movie.points) ?? 0;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MovieDetailScreen(movie: movie),
-            ));
+    return Dismissible(
+      key: Key(movie.id),
+      direction: DismissDirection.endToStart,
+
+      background: Container(
+        color: Colors.red.shade900,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20.0),
+        child: const Icon(Icons.delete_forever, color: Colors.white, size: 36),
+      ),
+
+      onDismissed: (direction) {
+        _handleDelete(movie.id);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.network(
-                movie.url,
-                width: 70,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.broken_image,
-                  color: Colors.red,
-                  size: 60,
+
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MovieDetailScreen(movie: movie),
+              ));
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.network(
+                  movie.url,
+                  width: 70,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.broken_image,
+                    color: Colors.red,
+                    size: 60,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // TÍTULO
-                  Text(
-                    movie.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-
-                  Text(
-                    '${movie.genre} - ${movie.duration}',
-                    style: const TextStyle(fontSize: 14, color: Colors.white70),
-                  ),
-                  const SizedBox(height: 8),
-                  RatingBar.builder(
-                    initialRating: rating,
-                    minRating: 0,
-                    direction: Axis.horizontal,
-                    itemCount: 5,
-                    itemSize: 20,
-                    itemPadding: EdgeInsets.zero,
-                    itemBuilder: (context, _) => const Icon(
-                      Icons.star,
-                      color: Colors.red,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      movie.title,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    onRatingUpdate: (v) {},
-                    ignoreGestures: true,
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${movie.genre} - ${movie.duration}',
+                      style: const TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8),
+                    RatingBar.builder(
+                      initialRating: rating,
+                      minRating: 0,
+                      direction: Axis.horizontal,
+                      itemCount: 5,
+                      itemSize: 20,
+                      itemPadding: EdgeInsets.zero,
+                      itemBuilder: (context, _) => const Icon(
+                        Icons.star,
+                        color: Colors.red,
+                      ),
+                      onRatingUpdate: (v) {},
+                      ignoreGestures: true,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

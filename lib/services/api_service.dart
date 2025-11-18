@@ -103,4 +103,29 @@ class ApiService {
       return [];
     }
   }
+  
+  Future<bool> deleteMovie(String movieId) async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$baseUrl/movies/$movieId');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Falha ao deletar filme: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Erro de conexão ao deletar: $e");
+      return false;
+    }
+  }
 }
