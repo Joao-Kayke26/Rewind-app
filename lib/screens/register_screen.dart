@@ -19,12 +19,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final _authService = AuthService();
 
   bool _loading = false;
-  String? _error;
+  String _error = "";
 
   void _register() async {
     setState(() {
       _loading = true;
-      _error = null;
+      _error = "";
     });
 
     final name = _nameController.text.trim();
@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     } else {
       setState(() {
-        _error = 'Erro ao registrar. Tente outro email ou verifique os dados.';
+        _error = 'Erro ao registrar!';
       });
     }
   }
@@ -110,8 +110,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepOrange,
                           minimumSize: const Size(double.infinity, 48),
+                          textStyle: TextStyle(color: Colors.black),
                         ),
-                        child: const Text('Registrar'),
+                        child: const Text('Registrar', style: TextStyle(color: Colors.black),),
                       ),
                 const SizedBox(height: 16),
                 TextButton(
@@ -121,8 +122,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                     );
                   },
-                  child: const Text("Já tem conta? Fazer login"),
+                  child: const Text("Já tem conta? Fazer login",style: TextStyle(color: Colors.white),),
                 ),
+                _error != "" ? Text(
+                  _error,
+                  style: TextStyle(color: Colors.white)) : Text(""),
               ],
             ),
           ),

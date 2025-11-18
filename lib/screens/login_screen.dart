@@ -15,12 +15,12 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _loading = false;
-  String? _error;
+  String _error = "";
 
   void _submit() async {
     setState(() {
       _loading = true;
-      _error = null;
+      _error = "";
     });
 
     final email = _emailController.text.trim();
@@ -33,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     if (ok) {
-      // navega para a home e remove a página de login da pilha
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const HomePage()),
       );
@@ -97,9 +96,9 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepOrange,
                           minimumSize: const Size(double.infinity, 45),
-                          textStyle: TextStyle(color: Colors.white)
+
                         ),
-                        child: _loading ? const CircularProgressIndicator() : const Text('Entrar'),
+                        child: _loading ? const CircularProgressIndicator() : const Text('Entrar',style: TextStyle(color: Colors.black)),
                       ),
                 TextButton(
                   onPressed: () {
@@ -113,6 +112,9 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
+                _error != "" ? Text(
+                    _error,
+                    style: TextStyle(color: Colors.white)) : Text(""),
               ],
             ),
           ),
