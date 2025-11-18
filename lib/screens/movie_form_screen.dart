@@ -20,7 +20,7 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
   final _durationController = TextEditingController();
   final _releaseController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   String _selectedAge = 'Livre';
   final List<String> _ageOptions = ['Livre', '10', '12', '14', '16', '18'];
   double _rating = 3.0;
@@ -123,7 +123,7 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
               const SizedBox(height: 16),
 
               _buildTextField(controller: _releaseController, label: 'Ano', keyboardType: TextInputType.number),
-
+              
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
@@ -150,7 +150,7 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
       ),
     );
   }
-
+  
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
