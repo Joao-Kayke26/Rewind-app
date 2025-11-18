@@ -1,335 +1,229 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../models/movie_model.dart';
+import 'movie_detail_screen.dart';
 
-/// ------------------------------------------------------------
-/// MOCK DOS MODELOS
-/// ------------------------------------------------------------
-class Movie {
-  final String id;
-  final String url;
-  final String title;
-  final String genre;
-  final String age;
-  final String duration;
-  final String points;
-  final String description;
-  final String release;
-
-  Movie({
-    required this.id,
-    required this.url,
-    required this.title,
-    required this.genre,
-    required this.age,
-    required this.duration,
-    required this.points,
-    required this.description,
-    required this.release,
-  });
-}
-
-/// ------------------------------------------------------------
-/// MOCK DO SERVIÇO (NÃO PRECISA DE API)
-/// ------------------------------------------------------------
-class MovieService {
-  Future<List<Movie>> getMovies() async {
-    await Future.delayed(const Duration(milliseconds: 700));
-
-    return [
-      Movie(
-        id: "1",
-        url: "https://i.imgur.com/8QZ7e5O.jpeg",
-        title: "Interestelar",
-        genre: "Ficção",
-        age: "12",
-        duration: "2h 49m",
-        points: "9.0",
-        description:
-        "Um grupo de astronautas viaja pelo espaço em busca de um novo lar para a humanidade.",
-        release: "2014",
-      ),
-      Movie(
-        id: "2",
-        url: "https://i.imgur.com/Abd9W6g.jpeg",
-        title: "Batman: O Cavaleiro das Trevas",
-        genre: "Ação",
-        age: "14",
-        duration: "2h 32m",
-        points: "9.1",
-        description:
-        "Batman enfrenta o Coringa em uma guerra psicológica mortal.",
-        release: "2008",
-      ),
-      Movie(
-        id: "3",
-        url: "https://i.imgur.com/K9g5R8f.jpeg",
-        title: "Duna",
-        genre: "Ficção",
-        age: "12",
-        duration: "2h 35m",
-        points: "8.4",
-        description:
-        "Uma jornada épica no planeta deserto Arrakis, onde há o recurso mais valioso do universo.",
-        release: "2021",
-      ),
-    ];
-  }
-}
-
-/// ------------------------------------------------------------
-/// TELA DE DETALHES
-/// ------------------------------------------------------------
-class MovieDetailPage extends StatelessWidget {
-  final Movie movie;
-
-  const MovieDetailPage({super.key, required this.movie});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(movie.title),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.network(movie.url),
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              movie.title,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              "${movie.genre} • ${movie.duration} • ${movie.age}+",
-              style: const TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-
-            const SizedBox(height: 10),
-
-            Row(
-              children: [
-                Icon(Icons.star, color: Colors.amber[300], size: 26),
-                const SizedBox(width: 6),
-                Text(
-                  movie.points,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Descrição",
-              style: TextStyle(
-                color: Colors.orange,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              movie.description,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              "Lançamento: ${movie.release}",
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// ------------------------------------------------------------
-/// TELA PRINCIPAL (HOME)
-// 100% FUNCIONAL
-/// ------------------------------------------------------------
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Movie> movies = [];
-  bool loading = true;
+  final _api = ApiService();
+  final _auth = AuthService();
+
+  late Future<List<Movie>> _moviesFuture;
 
   @override
   void initState() {
     super.initState();
-    loadMovies();
+    _moviesFuture = _loadMockMovies();
   }
 
-  Future<void> loadMovies() async {
-    final result = await MovieService().getMovies();
-    setState(() {
-      movies = result;
-      loading = false;
-    });
+
+  Future<List<Movie>> _loadMockMovies() async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    return [
+      Movie(
+        id: 1,
+        url: "https://picsum.photos/200/300?random=1",
+        title: "Interstellar",
+        genre: "Ficção Científica",
+        age: "12",
+        duration: "2h30",
+        points: "5",
+        description: "Uma jornada épica através do espaço e do tempo.",
+        release: "2014",
+      ),
+      Movie(
+        id: 2,
+        url: "https://picsum.photos/200/300?random=2",
+        title: "Vingadores",
+        genre: "Ação",
+        age: "12",
+        duration: "2h15",
+        points: "4",
+        description: "Os heróis mais poderosos da Terra enfrentam Loki.",
+        release: "2012",
+      ),
+      Movie(
+        id: 3,
+        url: "https://picsum.photos/200/300?random=3",
+        title: "O Rei Leão",
+        genre: "Animação",
+        age: "L",
+        duration: "1h50",
+        points: "5",
+        description: "A jornada de Simba para se tornar o rei.",
+        release: "1994",
+      ),
+      Movie(
+        id: 4,
+        url: "https://picsum.photos/200/300?random=4",
+        title: "Duna 2",
+        genre: "Ficção Científica",
+        age: "14",
+        duration: "2h40",
+        points: "5",
+        description: "A continuação épica baseada no livro clássico.",
+        release: "2024",
+      ),
+      Movie(
+        id: 5,
+        url: "https://picsum.photos/200/300?random=5",
+        title: "Avatar",
+        genre: "Fantasia",
+        age: "12",
+        duration: "2h42",
+        points: "4",
+        description: "Jake Sully precisa defender Pandora mais uma vez.",
+        release: "2009",
+      ),
+    ];
+  }
+
+
+  void _logout() async {
+    await _auth.logout();
+    Navigator.of(context).pushReplacementNamed('/');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text(
-          "Rewind",
+          "Catálogo de Filmes",
           style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
             color: Colors.deepOrange,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
         ),
-        elevation: 0,
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.search, color: Colors.white, size: 28),
+            child: Icon(
+              Icons.account_circle,
+              color: Colors.deepOrange,
+              size: 32,
+            ),
           ),
         ],
       ),
+      body: FutureBuilder<List<Movie>>(
+        future: _moviesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.deepOrange),
+            );
+          }
 
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-        onRefresh: loadMovies,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //    ⭐ CARROSSEL
-              SizedBox(
-                height: 240,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: movies.length,
-                  itemBuilder: (context, index) {
-                    final movie = movies[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MovieDetailPage(movie: movie),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10),
-                        width: 160,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: NetworkImage(movie.url),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                "Erro ao carregar filmes: ${snapshot.error}",
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+
+          final movies = snapshot.data ?? [];
+
+          final categories = movies.map((m) => m.genre).toSet();
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: categories.map((genre) {
+                final filtered = movies
+                    .where((m) => m.genre == genre)
+                    .toList();
+                return _buildMovieSection(genre, filtered);
+              }).toList(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMovieSection(String category, List<Movie> movies) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              category,
+              style: const TextStyle(
+                color: Colors.deepOrange,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: movies.length,
+              itemBuilder: (context, index) {
+                final movie = movies[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MovieDetailScreen(movie: movie),
                       ),
                     );
                   },
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "Todos os filmes",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // ⭐ GRID
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: movies.length,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 0.55,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemBuilder: (context, index) {
-                  final movie = movies[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MovieDetailPage(movie: movie),
-                        ),
-                      );
-                    },
+                  child: Container(
+                    width: 130,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                           child: Image.network(
                             movie.url,
-                            height: 140,
                             fit: BoxFit.cover,
+                            width: 130,
+                            height: 160,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                                  Icons.broken_image,
+                                  color: Colors.deepOrange,
+                                  size: 60,
+                                ),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           movie.title,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

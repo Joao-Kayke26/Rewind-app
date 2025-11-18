@@ -1,157 +1,201 @@
 import 'package:flutter/material.dart';
 import '../models/movie_model.dart';
 
-class MovieDetailPage extends StatelessWidget {
+class MovieDetailScreen extends StatefulWidget {
   final Movie movie;
 
-  const MovieDetailPage({super.key, required this.movie});
+  const MovieDetailScreen({super.key, required this.movie});
+
+  @override
+  State<MovieDetailScreen> createState() => _MovieDetailScreenState();
+}
+
+class _MovieDetailScreenState extends State<MovieDetailScreen> {
+  double opacityPoster = 0;
+  double opacityContent = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(milliseconds: 150), () {
+      setState(() => opacityPoster = 1);
+    });
+
+    Future.delayed(const Duration(milliseconds: 400), () {
+      setState(() => opacityContent = 1);
+    });
+  }
+  Color getAgeColor(String age) {
+    switch (age) {
+      case "L":
+        return const Color(0xFF00C853);
+      case "10":
+        return const Color(0xFF2962FF);
+      case "12":
+        return const Color(0xFFFFD600);
+      case "14":
+        return const Color(0xFFFF6D00);
+      case "16":
+        return const Color(0xFFD50000);
+      case "18":
+        return const Color(0xFF424242);
+      default:
+        return Colors.white12;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final movie = widget.movie;
+
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        title: const Text(
+          "Detalhes",
+          style: TextStyle(
+            color: Colors.deepOrange,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // 🔶 Banner da imagem
-            Stack(
-              children: [
-                Image.network(
-                  movie.url,
-                  width: double.infinity,
-                  height: 280,
-                  fit: BoxFit.cover,
-                ),
 
-                // Botão de voltar
-                Positioned(
-                  top: 40,
-                  left: 10,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.black54,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // 🔶 Título
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                movie.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+            AnimatedOpacity(
+              opacity: opacityPoster,
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              child: Image.network(
+                movie.url,
+                width: double.infinity,
+                height: 380,
+                fit: BoxFit.cover,
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
 
-            // 🔶 Informações: idade • duração • gênero
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      movie.age,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    movie.duration,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    movie.genre,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 16),
-
-            // 🔶 Nota (points)
-            if (movie.points != null)
-              Padding(
+            AnimatedOpacity(
+              opacity: opacityContent,
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOut,
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "⭐ ${movie.points}",
-                  style: const TextStyle(
-                    color: Colors.orange,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-            const SizedBox(height: 16),
 
-            // 🔶 Descrição
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                movie.description,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            movie.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          movie.release,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          movie.genre,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: getAgeColor(movie.age),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            movie.age,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          movie.duration,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                        ),
+
+                        Row(
+                          children: List.generate(
+                            5,
+                                (i) => Icon(
+                              i < int.parse(movie.points)
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.deepOrange,
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+
+                    Text(
+                      movie.description,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // 🔶 Ano de lançamento
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "Lançamento: ${movie.release}",
-                style: const TextStyle(
-                  color: Colors.white54,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // 🔶 Botão assistir
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.deepOrange,
-                ),
-                onPressed: () {},
-                icon: const Icon(Icons.play_arrow),
-                label: const Text(
-                  "Assistir",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
           ],
         ),
       ),
