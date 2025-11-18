@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../models/movie_model.dart';
 import 'movie_detail_screen.dart';
+import 'movie_form_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -150,6 +151,25 @@ class _HomePageState extends State<HomePage> {
               }).toList(),
             ),
           );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.deepOrange,
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MovieFormScreen(),
+            ),
+          );
+
+          if (result == true) {
+            setState(() {
+
+              _moviesFuture = _loadMockMovies();
+            });
+          }
         },
       ),
     );
