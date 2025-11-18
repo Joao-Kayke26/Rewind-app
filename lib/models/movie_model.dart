@@ -21,17 +21,17 @@ class Movie {
   required this.description,
 });
 
-factory Movie.fromJson(Map<String, dynamic> json) {
-return Movie(
-id: json['id'] ?? 0,
-title: json['title'] ?? '',
-url: json['image'] ?? '',
-release: json['release'] ?? '',
-genre: json['genre'] ?? '',
-duration: json['duration'] ?? '',
-age: json['age']?.toString() ?? '',
-points: json['points']?.toString() ?? '',
-description: json['description'] ?? '',
-);
-}
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    return Movie(
+      id: json['id'].toString(),
+      url: json['url'],
+      title: json['title'],
+      genre: json['genre'],
+      age: json['age'],
+      duration: json['duration'],
+      points: json['points'],
+      description: json['description'],
+      release: json['release']
+    );
+  }
 }
