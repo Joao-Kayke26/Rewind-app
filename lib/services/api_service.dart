@@ -128,4 +128,30 @@ class ApiService {
       return false;
     }
   }
+
+  Future<bool> updateMovie(String id, Map<String, dynamic> movieData) async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$baseUrl/movies/$id');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(movieData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        print("Erro ao atualizar filme: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Erro de conexão ao atualizar: $e");
+      return false;
+    }
+  }
 }

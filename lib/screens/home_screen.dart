@@ -48,6 +48,65 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _showActionMenu(Movie movie) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                movie.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(color: Colors.white12, height: 1),
+
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.white),
+              title: const Text('Exibir Dados', style: TextStyle(color: Colors.white, fontSize: 18)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => MovieDetailScreen(movie: movie)),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.edit, color: Colors.red),
+              title: const Text('Alterar', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
+              onTap: () async {
+                Navigator.pop(context);
+                final bool? didRefresh = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => MovieFormScreen(movie: movie)),
+                );
+                if (didRefresh == true) {
+                  _refreshMovies();
+                }
+              },
+            ),
+
+            const Divider(color: Colors.white12, height: 1),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white54)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildListItem(Movie movie) {
     final double rating = double.tryParse(movie.points) ?? 0;
 
@@ -68,11 +127,7 @@ class _HomePageState extends State<HomePage> {
 
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MovieDetailScreen(movie: movie),
-              ));
+          _showActionMenu(movie);
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

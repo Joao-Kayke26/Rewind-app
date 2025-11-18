@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../services/api_service.dart';
+import '../models/movie_model.dart';
 
 class MovieFormScreen extends StatefulWidget {
-  const MovieFormScreen({super.key});
+  final Movie? movie;
+
+  const MovieFormScreen({super.key, this.movie});
 
   @override
   State<MovieFormScreen> createState() => _MovieFormScreenState();
@@ -25,6 +28,25 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
   final List<String> _ageOptions = ['Livre', '10', '12', '14', '16', '18'];
   double _rating = 3.0;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.movie != null) {
+      _urlController.text = widget.movie!.url;
+      _titleController.text = widget.movie!.title;
+      _genreController.text = widget.movie!.genre;
+      _durationController.text = widget.movie!.duration;
+      _releaseController.text = widget.movie!.release;
+      _descriptionController.text = widget.movie!.description;
+
+      if (_ageOptions.contains(widget.movie!.age)) {
+        _selectedAge = widget.movie!.age;
+      }
+
+      _rating = double.tryParse(widget.movie!.points) ?? 3.0;
+    }
+  }
+
   void _saveMovie() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -41,31 +63,41 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
       "description": _descriptionController.text,
     };
 
-    final success = await _apiService.createMovie(movieData);
+    bool success;
+
+    if (widget.movie == null) {
+      success = await _apiService.createMovie(movieData);
+    } else {
+      success = await _apiService.updateMovie(widget.movie!.id, movieData);
+    }
 
     setState(() => _isLoading = false);
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Filme salvo com sucesso!')),
+        SnackBar(
+          content: Text(widget.movie == null
+              ? 'Filme criado com sucesso!'
+              : 'Filme atualizado com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
       );
       Navigator.pop(context, true);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao salvar filme.')),
+        const SnackBar(content: Text('Erro ao salvar filme.'), backgroundColor: Colors.red),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    const labelStyle = TextStyle(color: Colors.white70);
+    final isEditing = widget.movie != null;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Cadastrar Filme'),
+        title: Text(isEditing ? 'Editar Filme' : 'Cadastrar Filme'),
         backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
@@ -86,13 +118,13 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Faixa Etária',
-                  labelStyle: labelStyle,
+                  labelStyle: TextStyle(color: Colors.white70),
                   enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                 ),
                 items: _ageOptions.map((age) => DropdownMenuItem(
                   value: age,
-                  child: Text(age, style: const TextStyle(color: Colors.white)),
+                  child: Text(age),
                 )).toList(),
                 onChanged: (val) => setState(() => _selectedAge = val!),
               ),
@@ -111,7 +143,7 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
                 allowHalfRating: false,
                 itemCount: 5,
                 itemBuilder: (context, _) => const Icon(
-                  Icons.star_border,
+                  Icons.star,
                   color: Colors.red,
                 ),
                 onRatingUpdate: (rating) {
@@ -123,14 +155,14 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
               const SizedBox(height: 16),
 
               _buildTextField(controller: _releaseController, label: 'Ano', keyboardType: TextInputType.number),
-              
+
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Descrição',
-                  labelStyle: labelStyle,
+                  labelStyle: TextStyle(color: Colors.white70),
                   enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
                   focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                 ),
@@ -150,7 +182,7 @@ class _MovieFormScreenState extends State<MovieFormScreen> {
       ),
     );
   }
-  
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
