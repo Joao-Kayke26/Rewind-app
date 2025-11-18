@@ -80,13 +80,39 @@ class _HomePageState extends State<HomePage> {
             fontSize: 24,
           ),
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(
-              Icons.account_circle,
-              color: Colors.deepOrange,
-              size: 32,
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.info_outline, color: Colors.deepOrange, size: 30), // Ícone (i)
+              onPressed: () {
+                // Abre o Alerta (Dialog)
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      // O título conforme a imagem do PDF
+                      title: const Text("Equipe:"),
+                      // O conteúdo com os nomes que você me passou
+                      content: const Text(
+                        "Ariel Lucas\n"
+                            "Gabryel Araujo\n"
+                            "Joao Kayke\n"
+                            "Victor Albuquerque",
+                        style: TextStyle(fontSize: 16, height: 1.5),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Fecha o alerta
+                          },
+                          child: const Text("OK", style: TextStyle(color: Colors.deepOrange)),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
