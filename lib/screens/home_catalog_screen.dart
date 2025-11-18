@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/movie_model.dart';
+import 'movie_form_screen.dart';
 
 class HomeCatalogScreen extends StatefulWidget {
   const HomeCatalogScreen({super.key});
@@ -65,6 +66,21 @@ class _HomeCatalogScreenState extends State<HomeCatalogScreen> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MovieFormScreen(),
+            ),
+          );
+        },
+        backgroundColor: Colors.deepOrange,
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
