@@ -6,7 +6,7 @@ class AuthService {
   final String baseUrl = 'http://localhost:8080';
 
   Future<bool> login(String email, String password) async {
-    final url = Uri.parse('$baseUrl/auth/login'); // ajuste o endpoint
+    final url = Uri.parse('$baseUrl/auth/login');
 
     final response = await http.post(
       url,
@@ -47,12 +47,6 @@ class AuthService {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final body = jsonDecode(response.body);
-
-      if (body['token'] != null) {
-        await TokenStorage.saveToken(body['token']);
-      }
-
       return true;
     } else {
       return false;

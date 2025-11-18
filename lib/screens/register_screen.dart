@@ -31,13 +31,13 @@ class _RegisterPageState extends State<RegisterPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    final ok = await _authService.register(name, email, password);
+    final userO = await _authService.register(name, email, password);
 
     setState(() => _loading = false);
 
-    if (ok) {
+    if (userO) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const LoginPage()),
       );
     } else {
       setState(() {
@@ -67,6 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 32),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Nome de usuário',
@@ -78,6 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
@@ -89,6 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(
