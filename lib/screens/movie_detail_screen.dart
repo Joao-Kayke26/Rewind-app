@@ -31,7 +31,7 @@ class MovieDetailScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Image.network(
-                  movie.imageUrl,
+                  movie.url,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: 300,
@@ -48,7 +48,7 @@ class MovieDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Categoria: ${movie.category}",
+                "Categoria: ${movie.genre}",
                 style: const TextStyle(color: Colors.white70, fontSize: 16),
               ),
               const SizedBox(height: 16),
