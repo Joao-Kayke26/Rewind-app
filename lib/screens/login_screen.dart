@@ -65,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _emailController,
+                  style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -77,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Senha',
                     border: OutlineInputBorder(),
@@ -95,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepOrange,
                           minimumSize: const Size(double.infinity, 45),
+                          textStyle: TextStyle(color: Colors.white)
                         ),
                         child: _loading ? const CircularProgressIndicator() : const Text('Entrar'),
                       ),
@@ -105,7 +108,10 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(builder: (_) => const RegisterPage()),
                     );
                   },
-                  child: const Text("Novo por aqui? Crie sua conta"),
+                  child: const Text(
+                    "Novo por aqui? Crie sua conta",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
