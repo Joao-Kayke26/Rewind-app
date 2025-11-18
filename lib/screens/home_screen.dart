@@ -30,33 +30,14 @@ class _HomePageState extends State<HomePage> {
       Movie(
         id: 1,
         title: "Interstellar",
-        imageUrl: "https://picsum.photos/200/300?random=1",
-        category: "Ficção Científica",
-      ),
-      Movie(
-        id: 2,
-        title: "Vingadores",
-        imageUrl: "https://picsum.photos/200/300?random=2",
-        category: "Ação",
-      ),
-      Movie(
-        id: 3,
-        title: "O Rei Leão",
-        imageUrl: "https://picsum.photos/200/300?random=3",
-        category: "Animação",
-      ),
-      Movie(
-        id: 4,
-        title: "Duna 2",
-        imageUrl: "https://picsum.photos/200/300?random=4",
-        category: "Ficção Científica",
-      ),
-      Movie(
-        id: 5,
-        title: "Avatar",
-        imageUrl: "https://picsum.photos/200/300?random=5",
-        category: "Fantasia",
-      ),
+        url: "https://picsum.photos/200/300?random=1",
+        genre: "Ficção Científica",
+        description: "Descrição de teste",
+        duration: "2h30",
+        age: "Livre",
+        points: "4.92",
+        release: "2018"
+      )
     ];
   }
 
@@ -111,16 +92,16 @@ class _HomePageState extends State<HomePage> {
 
           final movies = snapshot.data ?? [];
 
-          final categories = movies.map((m) => m.category).toSet();
+          final genres = movies.map((m) => m.genre).toSet();
 
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: categories.map((category) {
+              children: genres.map((genre) {
                 final filtered = movies
-                    .where((m) => m.category == category)
+                    .where((m) => m.genre == genre)
                     .toList();
-                return _buildMovieSection(category, filtered);
+                return _buildMovieSection(genre, filtered);
               }).toList(),
             ),
           );
@@ -171,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.network(
-                            movie.imageUrl,
+                            movie.url,
                             fit: BoxFit.cover,
                             width: 130,
                             height: 160,

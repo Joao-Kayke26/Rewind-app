@@ -1,22 +1,37 @@
 class Movie {
   final int id;
+  final String url;
   final String title;
-  final String imageUrl;
-  final String category;
+  final String genre;
+  final String age;
+  final String duration;
+  final String points;
+  final String description;
+  final String release;
 
   Movie({
     required this.id,
+    required this.url,
     required this.title,
-    required this.imageUrl,
-    required this.category,
+    required this.genre,
+    required this.age,
+    required this.duration,
+    required this.points,
+    required this.description,
+    required this.release
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
       id: json['id'],
+      url: json['url'],
       title: json['title'],
-      imageUrl: json['image'],
-      category: json['category'],
+      genre: json['genre'],
+      age: json['age'],
+      duration: json['duration'],
+      points: json['points'],
+      description: json['description'],
+      release: json['release']
     );
   }
 }
