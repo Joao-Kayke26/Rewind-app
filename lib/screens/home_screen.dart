@@ -153,6 +153,7 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepOrange,
         child: const Icon(Icons.add, color: Colors.white),
@@ -172,6 +173,7 @@ class _HomePageState extends State<HomePage> {
           }
         },
       ),
+
     );
   }
 

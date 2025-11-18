@@ -50,4 +50,30 @@ class ApiService {
       throw Exception('Erro ${response.statusCode}: ${response.body}');
     }
   }
+  Future<bool> createMovie(Map<String, dynamic> movieData) async {
+    final url = Uri.parse('$baseUrl/movies/');
+
+    final token = await TokenStorage.getToken();
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(movieData),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        print("Erro API: ${response.statusCode} ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Erro de conexão: $e");
+      return false;
+    }
+  }
 }
