@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/token_storage.dart';
+import '../models/movie_model.dart';
 
 class ApiService {
   final String baseUrl = "http://localhost:8080";
@@ -74,6 +75,32 @@ class ApiService {
     } catch (e) {
       print("Erro de conexão: $e");
       return false;
+    }
+  }
+
+  Future<List<Movie>> fetchMovies() async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$baseUrl/movies');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList.map((json) => Movie.fromJson(json)).toList();
+      } else {
+        print('Erro ao buscar filmes: ${response.statusCode} - ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Erro de conexão ao buscar filmes: $e');
+      return [];
     }
   }
 }

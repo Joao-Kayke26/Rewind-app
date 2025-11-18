@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../models/movie_model.dart';
@@ -20,31 +21,86 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _moviesFuture = _loadMockMovies();
+    _refreshMovies();
   }
 
-  // 🔥 MOCK DE FILMES
-  Future<List<Movie>> _loadMockMovies() async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    return [
-      Movie(
-        id: 1,
-        title: "Interstellar",
-        url: "https://picsum.photos/200/300?random=1",
-        genre: "Ficção Científica",
-        description: "Descrição de teste",
-        duration: "2h30",
-        age: "Livre",
-        points: "4.92",
-        release: "2018"
-      )
-    ];
+  void _refreshMovies() {
+    setState(() {
+      _moviesFuture = _api.fetchMovies();
+    });
   }
 
-  void _logout() async {
-    await _auth.logout();
-    Navigator.of(context).pushReplacementNamed('/');
+  Widget _buildListItem(Movie movie) {
+    final double rating = double.tryParse(movie.points) ?? 0;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MovieDetailScreen(movie: movie),
+            ));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.network(
+                movie.url,
+                width: 70,
+                height: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.broken_image,
+                  color: Colors.red,
+                  size: 60,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // TÍTULO
+                  Text(
+                    movie.title,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+
+                  Text(
+                    '${movie.genre} - ${movie.duration}',
+                    style: const TextStyle(fontSize: 14, color: Colors.white70),
+                  ),
+                  const SizedBox(height: 8),
+                  RatingBar.builder(
+                    initialRating: rating,
+                    minRating: 0,
+                    direction: Axis.horizontal,
+                    itemCount: 5,
+                    itemSize: 20,
+                    itemPadding: EdgeInsets.zero,
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.red,
+                    ),
+                    onRatingUpdate: (v) {},
+                    ignoreGestures: true,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -52,12 +108,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.red,
         elevation: 0,
         title: const Text(
-          "Catálogo de Filmes",
+          "Filmes",
           style: TextStyle(
-            color: Colors.deepOrange,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -66,16 +122,13 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: IconButton(
-              icon: const Icon(Icons.info_outline, color: Colors.deepOrange, size: 30), // Ícone (i)
+              icon: const Icon(Icons.info_outline, color: Colors.white, size: 30),
               onPressed: () {
-                // Abre o Alerta (Dialog)
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      // O título conforme a imagem do PDF
                       title: const Text("Equipe:"),
-                      // O conteúdo com os nomes que você me passou
                       content: const Text(
                         "Ariel Lucas\n"
                             "Gabryel Araujo\n"
@@ -85,10 +138,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Fecha o alerta
-                          },
-                          child: const Text("OK", style: TextStyle(color: Colors.deepOrange)),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text("OK", style: TextStyle(color: Colors.red)),
                         ),
                       ],
                     );
@@ -99,45 +150,45 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
       body: FutureBuilder<List<Movie>>(
         future: _moviesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Colors.deepOrange),
-            );
+                child: CircularProgressIndicator(color: Colors.red));
           }
 
           if (snapshot.hasError) {
             return Center(
-              child: Text(
-                "Erro ao carregar filmes: ${snapshot.error}",
-                style: const TextStyle(color: Colors.white),
-              ),
-            );
+                child: Text('Erro ao carregar filmes. Verifique a API.',
+                    style: const TextStyle(color: Colors.red)));
           }
 
           final movies = snapshot.data ?? [];
 
-          final genres = movies.map((m) => m.genre).toSet();
+          if (movies.isEmpty) {
+            return const Center(
+              child: Text('Nenhum filme cadastrado.',
+                  style: TextStyle(color: Colors.white70)),
+            );
+          }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: genres.map((genre) {
-                final filtered = movies
-                    .where((m) => m.genre == genre)
-                    .toList();
-                return _buildMovieSection(genre, filtered);
-              }).toList(),
+          return RefreshIndicator(
+            onRefresh: () async => _refreshMovies(),
+            color: Colors.red,
+            child: ListView.builder(
+              itemCount: movies.length,
+              itemBuilder: (context, index) {
+                return _buildListItem(movies[index]);
+              },
             ),
           );
         },
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepOrange,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.red,
         onPressed: () async {
           final result = await Navigator.push(
             context,
@@ -145,88 +196,11 @@ class _HomePageState extends State<HomePage> {
               builder: (context) => const MovieFormScreen(),
             ),
           );
-
           if (result == true) {
-            setState(() {
-
-              _moviesFuture = _loadMockMovies();
-            });
+            _refreshMovies();
           }
         },
-      ),
-
-    );
-  }
-
-  Widget _buildMovieSection(String category, List<Movie> movies) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              category,
-              style: const TextStyle(
-                color: Colors.deepOrange,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: movies.length,
-              itemBuilder: (context, index) {
-                final movie = movies[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MovieDetailScreen(movie: movie),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 130,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            movie.url,
-                            fit: BoxFit.cover,
-                            width: 130,
-                            height: 160,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(
-                                  Icons.broken_image,
-                                  color: Colors.deepOrange,
-                                  size: 60,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          movie.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

@@ -1,5 +1,5 @@
 class Movie {
-  final int id;
+  final String id;
   final String url;
   final String title;
   final String genre;
@@ -23,7 +23,7 @@ class Movie {
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-      id: json['id'],
+      id: json['id'].toString(),
       url: json['url'],
       title: json['title'],
       genre: json['genre'],
